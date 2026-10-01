@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pocustips.netlify.app/sitemap.xml

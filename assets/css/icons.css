@@ -1,5 +1,5 @@
-/* Phosphor Icons — trimmed to only the glyphs this site actually uses.
-   Full icon set (~1200 glyphs x 2 weights, several MB) is unnecessary here. */
+/* Phosphor Icons — fonts are subset to only the glyphs listed below.
+   To add one, re-subset the upstream Phosphor woff2 (pyftsubset) with its codepoint. */
 
 @font-face {
   font-family: "Phosphor";
@@ -69,3 +69,23 @@
 .ph-bold.ph-sliders-horizontal:before { content: "\e434"; }
 .ph.ph-warning-diamond:before,
 .ph-bold.ph-warning-diamond:before { content: "\e7fc"; }
+.ph.ph-play:before,
+.ph-bold.ph-play:before { content: "\e3d0"; }
+.ph.ph-pause:before,
+.ph-bold.ph-pause:before { content: "\e39e"; }
+.ph.ph-magnifying-glass:before,
+.ph-bold.ph-magnifying-glass:before { content: "\e30c"; }
+.ph.ph-x:before,
+.ph-bold.ph-x:before { content: "\e4f6"; }
+.ph.ph-arrow-left:before,
+.ph-bold.ph-arrow-left:before { content: "\e058"; }
+.ph.ph-arrow-counter-clockwise:before,
+.ph-bold.ph-arrow-counter-clockwise:before { content: "\e038"; }
+.ph.ph-check:before,
+.ph-bold.ph-check:before { content: "\e182"; }
+.ph.ph-eye-slash:before,
+.ph-bold.ph-eye-slash:before { content: "\e224"; }
+.ph.ph-keyboard:before,
+.ph-bold.ph-keyboard:before { content: "\e2d8"; }
+.ph.ph-printer:before,
+.ph-bold.ph-printer:before { content: "\e3dc"; }
