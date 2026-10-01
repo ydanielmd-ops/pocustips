@@ -15,6 +15,8 @@
 <meta name="twitter:description" content="Cardiac, lung and IVC POCUS views: how to get them, what normal and abnormal look like, common pitfalls, and what each finding changes about management.">
 <meta name="twitter:image" content="assets/og-image.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="assets/css/nocturne.css">
 <link rel="stylesheet" href="assets/css/icons.css">
 <style>
@@ -22,6 +24,24 @@
   a { color: var(--color-accent); text-decoration: none; }
   a:hover { color: var(--color-accent-300); }
   @keyframes pinIn { from { opacity: 0; transform: scale(.6) } to { opacity: 1; transform: scale(1) } }
+  @keyframes flash { 0%, 35% { box-shadow: 0 0 0 2px var(--color-accent), 0 0 22px -4px var(--color-accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+  .flash { animation: flash 1.8s ease-out both; border-radius: var(--radius-md); }
+  [id] { scroll-margin-top: 140px; }
+  kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10.5px; line-height: 1; padding: 2px 5px; border-radius: 4px; border: 1px solid var(--color-neutral-700); border-bottom-width: 2px; color: var(--color-neutral-400); background: var(--color-neutral-900); }
+  mark { background: color-mix(in srgb, var(--color-accent) 30%, transparent); color: var(--color-accent-100); border-radius: 3px; }
+  .vbtn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-width: 34px; height: 30px; padding: 0 9px; font: inherit; font-size: 11.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: #e7e5fe; background: rgba(22,24,38,.78); border: 1px solid rgba(210,206,253,.32); border-radius: 7px; cursor: pointer; }
+  .vbtn:hover { background: rgba(43,39,65,.92); }
+  .vbtn[aria-pressed="true"] { color: #161826; background: var(--color-accent-300); border-color: var(--color-accent-300); }
+  .chip { font: inherit; font-size: 12px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--color-neutral-800); background: transparent; color: var(--color-neutral-400); cursor: pointer; }
+  .chip:hover { color: var(--color-accent-200); border-color: var(--color-accent-700); }
+  .linkbtn { font: inherit; font-size: 11.5px; padding: 3px 6px; border: 0; background: transparent; color: var(--color-accent); cursor: pointer; border-radius: 5px; }
+  .linkbtn:hover { background: color-mix(in srgb, var(--color-accent) 12%, transparent); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
+  @media (hover: none) { #shortcuts { display: none !important; } }
+  #search-input:focus-visible { outline: none !important; box-shadow: none !important; }
+  #search-input::-webkit-search-cancel-button { -webkit-appearance: none; }
 
   /* Reinforce focus visibility for controls sitting inside overflow:hidden
      wrappers (segmented toggle, dropdown rows) where an outline can get clipped. */
@@ -42,7 +62,7 @@
     }
     #rail nav::-webkit-scrollbar { height: 5px; }
     #rail nav::-webkit-scrollbar-thumb { background: var(--color-neutral-700, #3f424d); border-radius: 3px; }
-    #rail nav > div { flex-direction: row !important; gap: 6px !important; }
+    #rail nav > div { flex: none; flex-direction: row !important; gap: 6px !important; }
     #rail nav > div > span:first-child { display: none; }
     #rail nav button { width: auto !important; flex: none; min-height: 42px; padding: 8px 14px !important; }
     #rail nav button [data-full] { display: none !important; }
@@ -55,6 +75,29 @@
     [data-stack] thead { display: none; }
     [data-stack] tbody tr { display: flex; flex-direction: column; gap: 3px; padding: 12px 0; }
     [data-stack] td { border: 0 !important; padding: 3px 0 !important; }
+    #search-open { position: absolute; top: 6px; right: 14px; width: auto !important; margin: 0 !important; padding: 8px 11px !important; }
+    #search-open [data-label], #search-open kbd, #shortcuts { display: none !important; }
+    #pager button { flex: 1 1 0; min-width: 0; }
+  }
+
+  @media print {
+    :root {
+      --color-bg: #fff; --color-surface: #fff; --color-text: #15161c; --color-divider: #c9cbd3;
+      --color-neutral-300: #333; --color-neutral-400: #333; --color-neutral-500: #444; --color-neutral-600: #555;
+      --color-neutral-700: #999; --color-neutral-800: #c9cbd3; --color-neutral-900: #f1f2f5;
+      --color-accent: #4b3fa0; --color-accent-100: #2b2468; --color-accent-200: #2b2468; --color-accent-300: #3a3188;
+      --color-accent-400: #4b3fa0; --color-accent-700: #9d94d6; --color-accent-800: #c7c1ea; --color-accent-900: #f1effb;
+    }
+    @page { margin: 14mm; }
+    body { font-size: 12px; }
+    #rail, #search-open, #shortcuts, #pager, .vctl, [role="radiogroup"], [data-noprint] { display: none !important; }
+    #main { border: 0 !important; padding: 0 !important; }
+    #topbar { position: static !important; box-shadow: none !important; padding-top: 0 !important; }
+    [data-panel][hidden] { display: block !important; }
+    [data-chevron] { display: none !important; }
+    li, tr, figure, section > div { break-inside: avoid; }
+    figure > div { max-height: 70mm; }
+    a { color: inherit !important; }
   }
 </style>
 <script>window.__resources = {};</script>
@@ -69,7 +112,7 @@
 <div style="display:flex;flex-wrap:wrap;align-items:flex-start;min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:15px;line-height:1.55">
 
   <aside id="rail" style="flex:0 0 auto;width:min(276px,100%);padding:24px 20px 44px;position:sticky;top:0;align-self:flex-start;max-height:100vh;overflow-y:auto">
-    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:26px">
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:18px">
       <div style="display:flex;align-items:center;gap:10px">
         <span style="width:22px;height:22px;border-radius:6px;border:1px solid var(--color-accent);display:flex;align-items:center;justify-content:center;color:var(--color-accent);box-shadow:0 0 18px -4px var(--color-accent-700)"><i class="ph-bold ph-pulse" style="font-size:13px"></i></span>
         <span style="font-family:var(--font-heading);font-weight:500;font-size:19px;letter-spacing:-0.02em">POCUS Tips</span>
@@ -77,12 +120,18 @@
       <span style="font-size:11.5px;letter-spacing:0.01em;color:var(--color-neutral-500);padding-left:32px">Bedside reference — heart, lung, volume</span>
     </div>
 
-    <nav role="tablist" aria-label="Views" aria-orientation="vertical" style="display:flex;flex-direction:column;gap:20px;position:relative">
+    <button id="search-open" type="button" aria-label="Search all views" aria-haspopup="dialog" sc-camel-on-click="{{ openSearch }}" style="display:flex;align-items:center;gap:9px;width:100%;margin:0 0 24px;padding:8px 10px;font:inherit;font-size:13px;text-align:left;cursor:pointer;color:var(--color-neutral-500);background:color-mix(in srgb, var(--color-surface) 70%, transparent);border:1px solid var(--color-neutral-800);border-radius:8px" style-hover="border-color:var(--color-accent-700);color:var(--color-neutral-300)">
+      <i class="ph-bold ph-magnifying-glass" style="font-size:14px;color:var(--color-accent)"></i>
+      <span data-label="" style="flex:1">Search all views</span>
+      <kbd>/</kbd>
+    </button>
+
+    <nav role="tablist" aria-label="Views" aria-orientation="vertical" sc-camel-on-key-down="{{ onTabKey }}" style="display:flex;flex-direction:column;gap:20px;position:relative">
       <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
         <div role="group" aria-label="{{ g.label }}" style="display:flex;flex-direction:column;gap:7px">
           <span style="font-family:var(--font-heading);font-weight:500;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-neutral-600);padding-left:3px">{{ g.label }}</span>
           <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
-            <button role="tab" aria-selected="{{ it.on }}" aria-controls="view-content" sc-camel-on-click="{{ it.select }}" style="{{ it.style }}" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">
+            <button role="tab" id="{{ it.tabId }}" aria-selected="{{ it.on }}" aria-controls="view-content" sc-camel-tab-index="{{ it.tabIndex }}" sc-camel-on-click="{{ it.select }}" style="{{ it.style }}" style-hover="background:color-mix(in srgb, var(--color-text) 7%, transparent)">
               <span data-full="" style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ it.name }}</span>
               <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:0.06em;opacity:.55;flex:none">{{ it.abbr }}</span>
             </button>
@@ -91,10 +140,23 @@
       </sc-for>
     </nav>
 
-    <div id="notice" style="margin-top:30px;padding:11px 12px;border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);display:flex;flex-direction:column;gap:5px">
+    <div id="shortcuts" style="margin-top:26px;display:flex;flex-direction:column;gap:7px;font-size:11.5px;color:var(--color-neutral-600)">
+      <span style="display:flex;align-items:center;gap:6px;font-size:10px;letter-spacing:0.14em;text-transform:uppercase"><i class="ph ph-keyboard" style="font-size:13px"></i>Shortcuts</span>
+      <span style="display:flex;flex-wrap:wrap;gap:6px 12px">
+        <span><kbd>/</kbd> search</span>
+        <span><kbd>←</kbd> <kbd>→</kbd> views</span>
+        <span><kbd>Q</kbd> quiz</span>
+        <span><kbd>K</kbd> pause</span>
+      </span>
+    </div>
+
+    <div id="notice" style="margin-top:22px;padding:11px 12px;border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);display:flex;flex-direction:column;gap:5px">
       <span style="font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-neutral-600)">Educational use only</span>
       <span style="font-size:11.5px;line-height:1.45;color:var(--color-neutral-500)">Not for diagnosis or treatment decisions. Confirm findings with formal imaging and your own judgment.</span>
       <span style="font-size:11.5px;color:var(--color-neutral-600);margin-top:3px"><a href="https://yonathan.online" target="_blank" rel="noopener">{{ byline }}</a> · <a href="about.html">About</a></span>
+      <sc-if value="{{ offlineReady }}">
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-accent-300);margin-top:2px"><i class="ph-bold ph-check" style="font-size:11px"></i>Saved for offline use</span>
+      </sc-if>
     </div>
   </aside>
 
@@ -110,11 +172,11 @@
           <p style="margin:0;font-size:14.5px;max-width:62ch;text-wrap:pretty;color:color-mix(in srgb, var(--color-text) 74%, transparent)">{{ view.purpose }}</p>
         </div>
         <sc-if value="{{ hasStructures }}" hint-placeholder-val="{{ true }}">
-          <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
+          <div data-noprint="" style="display:flex;flex-direction:column;gap:5px;align-items:flex-start">
             <span style="font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-neutral-600)">Structure names</span>
-            <div role="radiogroup" aria-label="Structure names" style="display:inline-flex;border:1px solid var(--color-divider);border-radius:var(--radius-md);overflow:hidden">
+            <div role="radiogroup" aria-label="Structure names" sc-camel-on-key-down="{{ onModeKey }}" style="display:inline-flex;border:1px solid var(--color-divider);border-radius:var(--radius-md);overflow:hidden">
               <sc-for list="{{ modes }}" as="m" hint-placeholder-count="2">
-                <button role="radio" aria-checked="{{ m.on }}" sc-camel-on-click="{{ m.select }}" style="{{ m.style }}">{{ m.label }}</button>
+                <button role="radio" id="{{ m.id }}" aria-checked="{{ m.on }}" sc-camel-tab-index="{{ m.tabIndex }}" sc-camel-on-click="{{ m.select }}" style="{{ m.style }}">{{ m.label }}</button>
               </sc-for>
             </div>
           </div>
@@ -122,7 +184,7 @@
       </div>
     </header>
 
-    <div id="view-content" role="tabpanel" style="display:flex;flex-direction:column;gap:34px;padding-top:20px">
+    <div id="view-content" role="tabpanel" aria-labelledby="{{ tabpanelLabel }}" style="display:flex;flex-direction:column;gap:34px;padding-top:20px">
 
       <section style="display:flex;flex-wrap:wrap;gap:20px;align-items:stretch">
 
@@ -139,8 +201,12 @@
             <sc-if value="{{ view.burnedIn }}">
               <span style="position:absolute;right:8px;bottom:8px;font-size:9.5px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(233,233,237,.5);background:rgba(0,0,0,.5);border-radius:4px;padding:3px 6px">{{ view.credit }}</span>
             </sc-if>
+            <div class="vctl" style="position:absolute;left:8px;bottom:8px;display:flex;gap:6px;z-index:4">
+              <button type="button" class="vbtn" aria-label="{{ video.playLabel }}" title="{{ video.playLabel }} (K)" sc-camel-on-click="{{ video.togglePlay }}"><i class="{{ video.playIcon }}" style="font-size:13px"></i></button>
+              <button type="button" class="vbtn" aria-pressed="{{ video.slow }}" aria-label="0.5× slow motion" title="Slow motion" sc-camel-on-click="{{ video.toggleSlow }}">0.5×</button>
+            </div>
           </div>
-          <figcaption style="font-size:11.5px;color:var(--color-neutral-600);display:flex;gap:6px;align-items:center">
+          <figcaption data-noprint="" style="font-size:11.5px;color:var(--color-neutral-600);display:flex;gap:6px;align-items:center">
             <i class="ph ph-cursor-click" style="font-size:12px"></i><span>{{ view.mediaNote }}</span>
           </figcaption>
         </figure>
@@ -163,7 +229,7 @@
                 <path d="M19 52 Q52 62 85 52" stroke="#33364a" stroke-width="1" fill="none"></path>
                 <path d="M19 62 Q52 72 85 62" stroke="#33364a" stroke-width="1" fill="none"></path>
                 <path d="M16 76 Q52 58 88 76" stroke="#4a4e60" stroke-width="1.3" fill="none"></path>
-                <g transform="{{ view.probeTransform }}">
+                <g sc-camel-transform="{{ view.probeTransform }}">
                   <rect x="-4.6" y="-13" width="9.2" height="26" rx="4" fill="#9184d9" fill-opacity="0.22" stroke="#9184d9" stroke-width="1.3"></rect>
                   <line x1="-3" y1="12" x2="3" y2="12" stroke="#9184d9" stroke-width="2.4" stroke-linecap="round"></line>
                   <circle cx="0" cy="-8.5" r="2.1" fill="#d2cefd"></circle>
@@ -202,7 +268,7 @@
           </div>
           <ol style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px">
             <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
-              <li style="display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);background:color-mix(in srgb, var(--color-surface) 55%, transparent)">
+              <li id="{{ st.domId }}" style="display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);background:color-mix(in srgb, var(--color-surface) 55%, transparent)">
                 <span style="flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--color-accent-700);color:var(--color-accent-300);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;display:flex;align-items:center;justify-content:center;margin-top:1px">{{ st.n }}</span>
                 <span style="font-size:13.5px;line-height:1.5;text-wrap:pretty">{{ st.text }}</span>
               </li>
@@ -216,14 +282,23 @@
           <div style="display:flex;align-items:baseline;gap:10px">
             <h2 style="margin:0;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-neutral-400)">What you are looking at</h2>
             <span style="flex:1;height:1px;background:linear-gradient(to right, var(--color-divider), transparent 88%)"></span>
-            <span style="font-size:11px;color:var(--color-neutral-600)">{{ structureHint }}</span>
+            <sc-if value="{{ quiz.on }}">
+              <span style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end" data-noprint="">
+                <span aria-live="polite" style="font-size:11.5px;color:var(--color-accent-300);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;margin-right:4px">{{ quiz.progress }}</span>
+                <button type="button" class="linkbtn" sc-camel-on-click="{{ quiz.revealAll }}">Reveal all</button>
+                <button type="button" class="linkbtn" sc-camel-on-click="{{ quiz.reset }}"><i class="ph-bold ph-arrow-counter-clockwise" style="font-size:11px"></i> Reset</button>
+              </span>
+            </sc-if>
+            <sc-if value="{{ quiz.off }}">
+              <span data-noprint="" style="font-size:11px;color:var(--color-neutral-600)">{{ structureHint }}</span>
+            </sc-if>
           </div>
           <ul style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:2px">
             <sc-for list="{{ structures }}" as="s" hint-placeholder-count="6">
-              <li tabindex="0" role="button" sc-camel-on-mouse-enter="{{ s.enter }}" sc-camel-on-mouse-leave="{{ s.leave }}" sc-camel-on-focus="{{ s.enter }}" sc-camel-on-blur="{{ s.leave }}" sc-camel-on-click="{{ s.enter }}" style="{{ s.rowStyle }}">
+              <li id="{{ s.domId }}" tabindex="0" role="button" sc-camel-on-mouse-enter="{{ s.enter }}" sc-camel-on-mouse-leave="{{ s.leave }}" sc-camel-on-focus="{{ s.enter }}" sc-camel-on-blur="{{ s.leave }}" sc-camel-on-click="{{ s.activate }}" sc-camel-on-key-down="{{ s.key }}" style="{{ s.rowStyle }}">
                 <span style="{{ s.numStyle }}">{{ s.n }}</span>
                 <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
-                  <span style="{{ s.nameStyle }}">{{ s.name }}</span>
+                  <span style="{{ s.nameStyle }}">{{ s.name }}<sc-if value="{{ s.gotIt }}"><i class="ph-bold ph-check" style="font-size:11px;color:var(--color-accent-300);margin-left:6px"></i></sc-if></span>
                   <span style="font-size:12px;line-height:1.45;color:var(--color-neutral-500);text-wrap:pretty">{{ s.note }}</span>
                 </span>
                 <sc-if value="{{ s.noPin }}">
@@ -255,12 +330,16 @@
                 <sc-if value="{{ compare.hasImg }}">
                   <span style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:linear-gradient(to bottom, rgba(145,132,217,.55), rgba(145,132,217,.12))"></span>
                 </sc-if>
+                <div class="vctl" style="position:absolute;left:8px;bottom:8px;display:flex;gap:6px;z-index:4">
+                  <button type="button" class="vbtn" aria-label="{{ video.playLabel }}" title="{{ video.playLabel }} (K)" sc-camel-on-click="{{ video.togglePlay }}"><i class="{{ video.playIcon }}" style="font-size:13px"></i></button>
+                  <button type="button" class="vbtn" aria-pressed="{{ video.slow }}" aria-label="0.5× slow motion" title="Slow motion" sc-camel-on-click="{{ video.toggleSlow }}">0.5×</button>
+                </div>
               </div>
               <figcaption style="font-size:11.5px;line-height:1.5;color:var(--color-neutral-600);text-wrap:pretty">{{ compare.note }}</figcaption>
             </figure>
             <ul style="flex:1 1 260px;min-width:0;margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px">
               <sc-for list="{{ compare.cols }}" as="c" hint-placeholder-count="2">
-                <li style="display:flex;flex-direction:column;gap:5px;padding:13px 14px;border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);background:color-mix(in srgb, var(--color-surface) 50%, transparent)">
+                <li id="{{ c.domId }}" style="display:flex;flex-direction:column;gap:5px;padding:13px 14px;border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);background:color-mix(in srgb, var(--color-surface) 50%, transparent)">
                   <span style="font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-neutral-600)">{{ c.side }}</span>
                   <span style="font-size:14px;color:var(--color-accent-200)">{{ c.t }}</span>
                   <span style="font-size:12.5px;line-height:1.55;color:var(--color-neutral-400);text-wrap:pretty">{{ c.d }}</span>
@@ -288,7 +367,7 @@
               </sc-raw-thead>
               <sc-raw-tbody>
                 <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
-                  <sc-raw-tr>
+                  <sc-raw-tr id="{{ r.domId }}">
                     <sc-raw-td style="vertical-align:top">
                       <span style="display:block;font-size:13.5px">{{ r.a }}</span>
                       <span style="display:block;font-size:11px;color:var(--color-neutral-600);margin-top:2px">{{ r.how }}</span>
@@ -309,18 +388,17 @@
             <div style="display:flex;align-items:center;gap:8px">
               <i class="{{ b.icon }}" style="font-size:14px;color:var(--color-accent)"></i>
               <h2 style="margin:0;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-neutral-400)">{{ b.title }}</h2>
+              <button type="button" class="linkbtn" data-noprint="" sc-camel-on-click="{{ b.toggleAll }}" style="margin-left:auto">{{ b.allLabel }}</button>
             </div>
             <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px">
               <sc-for list="{{ b.items }}" as="it" hint-placeholder-count="3">
-                <li style="border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);background:color-mix(in srgb, var(--color-surface) 50%, transparent);overflow:hidden">
-                  <button aria-expanded="{{ it.open }}" sc-camel-on-click="{{ it.toggle }}" style="width:100%;display:flex;gap:9px;align-items:flex-start;text-align:left;background:transparent;border:0;color:inherit;font:inherit;padding:11px 12px;cursor:pointer" style-hover="background:color-mix(in srgb, var(--color-text) 5%, transparent)">
+                <li id="{{ it.domId }}" style="border-radius:var(--radius-md);border:1px solid var(--color-neutral-800);background:color-mix(in srgb, var(--color-surface) 50%, transparent);overflow:hidden">
+                  <button aria-expanded="{{ it.open }}" aria-controls="{{ it.panelId }}" sc-camel-on-click="{{ it.toggle }}" style="width:100%;display:flex;gap:9px;align-items:flex-start;text-align:left;background:transparent;border:0;color:inherit;font:inherit;padding:11px 12px;cursor:pointer" style-hover="background:color-mix(in srgb, var(--color-text) 5%, transparent)">
                     <span style="{{ it.markStyle }}"></span>
                     <span style="flex:1;font-size:13.5px;line-height:1.45;text-wrap:pretty">{{ it.t }}</span>
-                    <i class="{{ it.chevron }}" style="font-size:12px;color:var(--color-neutral-600);margin-top:3px;flex:none"></i>
+                    <i data-chevron="" class="{{ it.chevron }}" style="font-size:12px;color:var(--color-neutral-600);margin-top:3px;flex:none"></i>
                   </button>
-                  <sc-if value="{{ it.open }}">
-                    <p style="margin:0;padding:0 12px 12px 32px;font-size:12.5px;line-height:1.55;color:var(--color-neutral-400);text-wrap:pretty">{{ it.d }}</p>
-                  </sc-if>
+                  <p id="{{ it.panelId }}" data-panel="" hidden="{{ it.closed }}" style="margin:0;padding:0 12px 12px 32px;font-size:12.5px;line-height:1.55;color:var(--color-neutral-400);text-wrap:pretty">{{ it.d }}</p>
                 </li>
               </sc-for>
             </ul>
@@ -335,7 +413,7 @@
         </div>
         <ul style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px">
           <sc-for list="{{ actions }}" as="a" hint-placeholder-count="3">
-            <li style="display:flex;flex-direction:column;gap:4px;padding:12px 13px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--color-bg) 55%, transparent)">
+            <li id="{{ a.domId }}" style="display:flex;flex-direction:column;gap:4px;padding:12px 13px;border-radius:var(--radius-sm);background:color-mix(in srgb, var(--color-bg) 55%, transparent)">
               <span style="font-size:12.5px;line-height:1.4;color:var(--color-accent-200);display:flex;gap:7px;align-items:flex-start"><i class="ph ph-eye" style="font-size:12px;margin-top:2px;flex:none"></i>{{ a.t }}</span>
               <span style="font-size:13px;line-height:1.5;text-wrap:pretty">{{ a.d }}</span>
             </li>
@@ -346,18 +424,69 @@
       <div style="display:flex;flex-direction:column;gap:5px;padding:12px 13px;border-radius:var(--radius-md);border:1px solid var(--color-neutral-800)">
         <span style="font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-neutral-600)">Educational use only</span>
         <span style="font-size:12px;line-height:1.5;color:var(--color-neutral-500);text-wrap:pretty">Not for diagnosis or treatment decisions. Confirm findings with formal imaging and your own judgment.</span>
-        <span style="font-size:12px;color:var(--color-neutral-600);margin-top:2px"><a href="https://yonathan.online" target="_blank" rel="noopener">{{ byline }}</a> · <a href="about.html">About</a></span>
+        <span style="font-size:12px;color:var(--color-neutral-600);margin-top:2px"><a href="https://yonathan.online" target="_blank" rel="noopener">{{ byline }}</a> · <a href="about.html">About</a><sc-if value="{{ offlineReady }}"> · <span style="color:var(--color-accent-300)">Saved for offline use</span></sc-if></span>
       </div>
+
+      <nav id="pager" aria-label="Previous and next view" style="display:flex;gap:10px;justify-content:space-between">
+        <button type="button" sc-camel-on-click="{{ pager.prev }}" class="btn btn-secondary" style="flex:0 1 auto;min-width:0;justify-content:flex-start;text-align:left;padding:9px 14px">
+          <i class="ph-bold ph-arrow-left" style="font-size:12px;flex:none"></i>
+          <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Previous</span><span style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pager.prevName }}</span></span>
+        </button>
+        <button type="button" sc-camel-on-click="{{ pager.next }}" class="btn btn-primary" style="flex:0 1 auto;min-width:0;justify-content:flex-end;text-align:right;padding:9px 14px">
+          <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-accent-700)">Next</span><span style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ pager.nextName }}</span></span>
+          <i class="ph-bold ph-arrow-right" style="font-size:12px;flex:none"></i>
+        </button>
+      </nav>
 
       <footer style="display:flex;flex-wrap:wrap;gap:10px 20px;align-items:flex-start;justify-content:space-between;padding-top:14px;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent) no-repeat top / 100% 1px">
         <span style="font-size:11.5px;color:var(--color-neutral-600);max-width:66ch;text-wrap:pretty">
           Cutoffs follow the ASE 2015 chamber quantification guideline (Lang et al., <em>J Am Soc Echocardiogr</em> 2015), the ASE right heart guidelines (Rudski et al., <em>J Am Soc Echocardiogr</em> 2010), and the BLUE protocol (Lichtenstein &amp; Mezière, <em>Chest</em> 2008) — starting points, not thresholds for action. Loops courtesy of The POCUS Atlas, Ultrasound Idiots and Pocus 101.
           <br>Last reviewed 2026-09-15.
         </span>
-        <button sc-camel-on-click="{{ next }}" class="btn btn-primary" style="flex:none">Next view <i class="ph-bold ph-arrow-right" style="font-size:12px"></i></button>
+        <button type="button" sc-camel-on-click="{{ printView }}" class="btn btn-ghost" data-noprint="" style="flex:none;font-size:12.5px"><i class="ph-bold ph-printer" style="font-size:13px"></i> Print this view</button>
       </footer>
     </div>
   </main>
+
+  <sc-if value="{{ search.open }}">
+    <div sc-camel-on-mouse-down="{{ search.backdrop }}" style="position:fixed;inset:0;z-index:50;display:flex;justify-content:center;align-items:flex-start;padding:min(10vh,90px) 14px 14px;background:rgba(10,11,18,.7);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)">
+      <div id="search-dialog" role="dialog" aria-modal="true" aria-label="Search all views" sc-camel-on-key-down="{{ search.key }}" style="width:min(640px,100%);max-height:min(76vh,640px);display:flex;flex-direction:column;background:var(--color-surface);border:1px solid var(--color-neutral-800);border-radius:12px;box-shadow:0 24px 60px rgba(0,0,0,.6);overflow:hidden">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;border-bottom:1px solid var(--color-neutral-800)">
+          <i class="ph-bold ph-magnifying-glass" style="font-size:16px;color:var(--color-accent);flex:none"></i>
+          <input id="search-input" type="search" role="combobox" aria-expanded="{{ search.hasResults }}" aria-controls="search-results" aria-autocomplete="list" aria-activedescendant="{{ search.activeId }}" aria-label="Search all views" placeholder="Search signs, measures, pitfalls…" autocomplete="off" autocapitalize="off" spellcheck="false" value="{{ search.q }}" sc-camel-on-change="{{ search.onQuery }}" style="flex:1;min-width:0;font:inherit;font-size:16px;color:var(--color-text);background:transparent;border:0;outline:none;padding:6px 0">
+          <button type="button" class="vbtn" aria-label="Close search" sc-camel-on-click="{{ search.close }}" style="flex:none"><i class="ph-bold ph-x" style="font-size:13px"></i></button>
+        </div>
+        <ul id="search-results" role="listbox" aria-label="Results" style="margin:0;padding:6px;list-style:none;overflow-y:auto;display:flex;flex-direction:column;gap:2px">
+          <sc-for list="{{ search.results }}" as="r" hint-placeholder-count="0">
+            <li id="{{ r.id }}" role="option" aria-selected="{{ r.active }}" sc-camel-on-click="{{ r.go }}" sc-camel-on-mouse-move="{{ r.hover }}" style="{{ r.style }}">
+              <span style="flex:none;min-width:52px;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:0.06em;color:var(--color-accent);border:1px solid var(--color-accent-800);border-radius:5px;padding:2px 5px;margin-top:2px">{{ r.abbr }}</span>
+              <span style="display:flex;flex-direction:column;gap:2px;min-width:0">
+                <span style="font-size:13.5px;line-height:1.4;color:var(--color-text)">{{ r.tPre }}<mark>{{ r.tHit }}</mark>{{ r.tPost }}</span>
+                <sc-if value="{{ r.hasSnip }}"><span style="font-size:12px;line-height:1.45;color:var(--color-neutral-500)">{{ r.sPre }}<mark>{{ r.sHit }}</mark>{{ r.sPost }}</span></sc-if>
+                <span style="font-size:10.5px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-600)">{{ r.kind }} · {{ r.viewName }}</span>
+              </span>
+            </li>
+          </sc-for>
+        </ul>
+        <sc-if value="{{ search.none }}">
+          <p style="margin:0;padding:22px 18px;font-size:13px;color:var(--color-neutral-500)">No matches for “{{ search.q }}”. Try a sign, a measurement, or a view name.</p>
+        </sc-if>
+        <sc-if value="{{ search.empty }}">
+          <div style="padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px">
+            <span style="font-size:10.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-neutral-600)">Try</span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px">
+              <sc-for list="{{ search.suggestions }}" as="sg" hint-placeholder-count="0">
+                <button type="button" class="chip" sc-camel-on-click="{{ sg.pick }}">{{ sg.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;padding:8px 14px;border-top:1px solid var(--color-neutral-800);font-size:11px;color:var(--color-neutral-600)">
+          <span><kbd>↑</kbd> <kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span><kbd>Esc</kbd> close</span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
 </div>
 
 
@@ -369,12 +498,22 @@ function loopSources(path) {
   if (!base) return null;
   return { webm: "assets/loops/" + base + ".webm", mp4: "assets/loops/" + base + ".mp4" };
 }
-function loopVideo(path, alt) {
+function loopVideo(path, alt, playback) {
   const src = loopSources(path);
   if (!src) return null;
+  const base = MEDIA_BASE[path];
   return React.createElement("video", {
-    key: path, autoPlay: true, loop: true, muted: true, playsInline: true, preload: "metadata",
+    key: path, autoPlay: playback.playing, loop: true, muted: true, playsInline: true, preload: "metadata",
+    poster: "assets/posters/" + base + ".webp",
     "aria-label": alt,
+    ref: el => {
+      if (!el) return;
+      const rate = playback.slow ? 0.5 : 1;
+      el.defaultPlaybackRate = rate;
+      el.playbackRate = rate;
+      if (playback.playing) { if (el.paused) el.play().catch(() => {}); }
+      else if (!el.paused) el.pause();
+    },
     style: { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }
   }, [
     React.createElement("source", { key: "webm", src: src.webm, type: "video/webm" }),
@@ -661,7 +800,7 @@ const DATA = [
     fixes: [
       { t: "B-lines cut off mid-screen", d: "Increase depth to 10–12 cm so you can confirm they run all the way down." },
       { t: "Everything looks hazy", d: "Turn off unnecessary post-processing and reduce gain; artifact reading depends on a clean image." },
-      { t: "Hard to hold still on a tachypnoeic patient", d: "Brace your hand on the chest wall and record a short clip to review rather than deciding live." },
+      { t: "Hard to hold still on a tachypneic patient", d: "Brace your hand on the chest wall and record a short clip to review rather than deciding live." },
       { t: "Deep zones inaccessible in a supine patient", d: "Roll the patient slightly or scan into the posterolateral (PLAPS) point from the side of the bed." }
     ],
     actions: [
@@ -742,7 +881,7 @@ const DATA = [
     ],
     structures: [
       { name: "Anechoic effusion", note: "Black space above the diaphragm that changes shape through the respiratory cycle.", x: 62, y: 30 },
-      { name: "Hepatised lung", note: "Consolidated lung takes on liver-like tissue texture instead of a bright pleural line with artifact below it.", x: 28, y: 64 },
+      { name: "Hepatized lung", note: "Consolidated lung takes on liver-like tissue texture instead of a bright pleural line with artifact below it.", x: 28, y: 64 },
       { name: "Dynamic air bronchograms", note: "Bright dots and branching lines inside the consolidation, moving with each breath — favors pneumonia over atelectasis.", x: 46, y: 56 },
       { name: "Shred sign", note: "The ragged deep border between consolidated and still-aerated lung.", x: 66, y: 68 },
       { name: "Diaphragm", note: "The bright curved line separating chest from abdomen — find it first; everything here is read relative to it.", x: 0, y: 0 },
@@ -790,7 +929,7 @@ const DATA = [
       "Watch two full respiratory cycles, or run M-mode with a slow sweep to see the variation cleanly."
     ],
     structures: [
-      { name: "Inferior vena cava", note: "Thin-walled, non-pulsatile, changes calibre with respiration.", x: 0, y: 0 },
+      { name: "Inferior vena cava", note: "Thin-walled, non-pulsatile, changes caliber with respiration.", x: 0, y: 0 },
       { name: "IVC–right atrium junction", note: "Proves the vessel’s identity; the measurement is referenced from just below it.", x: 0, y: 0 },
       { name: "Hepatic vein confluence", note: "The landmark for where to measure — 1–2 cm distal to it.", x: 0, y: 0 },
       { name: "Aorta (do not confuse)", note: "Deeper, to the patient’s left, thick-walled and pulsatile, with no hepatic vein and no atrial connection.", x: 0, y: 0 }
@@ -862,55 +1001,354 @@ const DATA = [
   }
 ];
 
+const GROUP_ORDER = ["Essentials", "Cardiac", "Lung", "Volume"];
+const GROUP_LABEL = { Essentials: "Setup", Cardiac: "Cardiac", Lung: "Lung", Volume: "IVC" };
+const ORDER = GROUP_ORDER.flatMap(g => DATA.filter(v => v.group === g));
+const SUGGESTIONS = ["tamponade", "EPSS", "TAPSE", "D-sign", "lung point", "B-lines", "mainstem", "effusion"];
+const REDUCED_MOTION = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SCROLL = REDUCED_MOTION ? "auto" : "smooth";
+
+// Length-preserving, so match offsets in the folded text map straight back onto the original.
+function fold(s) { return String(s).toLowerCase().replace(/[’‘]/g, "'").replace(/[–—]/g, "-"); }
+
+const INDEX = (() => {
+  const out = [];
+  const add = (v, kind, title, body, target, openKey) => out.push({
+    view: v, kind, title, body: body || "", target, openKey,
+    hayTitle: fold(title), hayBody: fold(body || ""), hayView: fold(v.name + " " + v.abbr)
+  });
+  DATA.forEach(v => {
+    add(v, "View", v.name, v.purpose, null);
+    (v.steps || []).forEach((s, i) => add(v, "Step " + (i + 1), s, "", v.id + "-step-" + i));
+    (v.structures || []).forEach((s, i) => add(v, "Structure", s.name, s.note, v.id + "-structure-" + i));
+    (v.rows || []).forEach((r, i) => add(v, v.tableTitle || "Table", r.a, r.b + " — " + r.c + " (" + r.how + ")", v.id + "-row-" + i));
+    if (v.compare) v.compare.cols.forEach((c, i) => add(v, "M-mode", c.t, c.d, v.id + "-compare-" + i));
+    (v.pitfalls || []).forEach((p, i) => add(v, "Pitfall", p.t, p.d, v.id + "-pitfalls-" + i, v.id + ":pitfalls:" + i));
+    (v.fixes || []).forEach((p, i) => add(v, "Image fix", p.t, p.d, v.id + "-fixes-" + i, v.id + ":fixes:" + i));
+    (v.actions || []).forEach((a, i) => add(v, "So what", a.t, a.d, v.id + "-action-" + i));
+  });
+  return out;
+})();
+
+function searchTerms(q) { return fold(q).trim().split(/\s+/).filter(Boolean); }
+
+function runSearch(terms) {
+  if (!terms.length) return [];
+  const phrase = terms.join(" ");
+  const hits = [];
+  INDEX.forEach((e, order) => {
+    let score = 0;
+    for (const t of terms) {
+      const inT = e.hayTitle.includes(t), inB = e.hayBody.includes(t);
+      if (!inT && !inB && !e.hayView.includes(t)) return;
+      score += inT ? 10 : inB ? 4 : 1;
+    }
+    if (e.hayTitle.includes(phrase)) score += 8;
+    if (e.hayTitle.startsWith(phrase)) score += 4;
+    if (e.kind === "View") score += 3;
+    hits.push({ e, score, order });
+  });
+  hits.sort((a, b) => b.score - a.score || a.order - b.order);
+  return hits.slice(0, 40).map(h => h.e);
+}
+
+function locate(hay, terms) {
+  for (const t of terms.slice().sort((a, b) => b.length - a.length)) {
+    const i = hay.indexOf(t);
+    if (i >= 0) return [i, t.length];
+  }
+  return null;
+}
+
+function describe(e, terms) {
+  terms = terms.length > 1 ? [terms.join(" ")].concat(terms) : terms;
+  const out = { tPre: e.title, tHit: "", tPost: "", sPre: "", sHit: "", sPost: "", hasSnip: !!e.body };
+  const th = locate(e.hayTitle, terms);
+  if (th) {
+    out.tPre = e.title.slice(0, th[0]);
+    out.tHit = e.title.slice(th[0], th[0] + th[1]);
+    out.tPost = e.title.slice(th[0] + th[1]);
+  }
+  if (!e.body) return out;
+  const bh = th ? null : locate(e.hayBody, terms);
+  if (!bh) {
+    out.sPre = e.body.length > 120 ? e.body.slice(0, 117).replace(/\s+\S*$/, "") + "…" : e.body;
+    return out;
+  }
+  const hitEnd = bh[0] + bh[1];
+  let start = Math.max(0, bh[0] - 48);
+  if (start > 0) { const sp = e.body.indexOf(" ", start); if (sp >= 0 && sp < bh[0]) start = sp + 1; }
+  let end = Math.min(e.body.length, hitEnd + 72);
+  if (end < e.body.length) { const sp = e.body.lastIndexOf(" ", end); if (sp > hitEnd) end = sp; }
+  out.sPre = (start > 0 ? "…" : "") + e.body.slice(start, bh[0]);
+  out.sHit = e.body.slice(bh[0], hitEnd);
+  out.sPost = e.body.slice(hitEnd, end) + (end < e.body.length ? "…" : "");
+  return out;
+}
+
 class Component extends DCLogic {
-  state = { active: "plax", labels: true, open: {}, hover: -1 };
+  state = {
+    active: "plax", labels: true, open: {}, hover: -1, revealed: {},
+    playing: !REDUCED_MOTION, slow: false,
+    searchOpen: false, q: "", sel: 0,
+    offlineReady: false
+  };
 
   componentDidMount() {
-    if (this.props.quizByDefault) this.setState({ labels: false });
-    const id = (location.hash || "").replace("#", "");
-    if (id && DATA.some(v => v.id === id)) this.setState({ active: id });
+    this.baseTitle = document.title;
+    const id = (location.hash || "").slice(1);
+    const patch = {};
+    if (this.props.quizByDefault) patch.labels = false;
+    if (id && DATA.some(v => v.id === id)) patch.active = id;
+    this.revealTab = true;
+    this.setState(patch);
+    this.onPop = () => {
+      const h = (location.hash || "").slice(1);
+      const target = DATA.some(v => v.id === h) ? h : "plax";
+      if (this.state.searchOpen) this.setState({ searchOpen: false });
+      if (target !== this.state.active) this.select(target, { fromHistory: true });
+    };
+    this.onKey = e => this.globalKey(e);
+    window.addEventListener("popstate", this.onPop);
+    window.addEventListener("keydown", this.onKey);
+    if (navigator.serviceWorker) {
+      this.onSw = e => { if (e.data && e.data.type === "warm-done" && e.data.ok) this.setState({ offlineReady: true }); };
+      navigator.serviceWorker.addEventListener("message", this.onSw);
+    }
   }
 
-  select(id) {
-    this.setState({ active: id, hover: -1 });
-    try { history.replaceState(null, "", "#" + id); } catch (e) {}
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.onPop);
+    window.removeEventListener("keydown", this.onKey);
+    if (this.onSw) navigator.serviceWorker.removeEventListener("message", this.onSw);
   }
 
-  toggle(key) {
-    this.setState(s => ({ open: Object.assign({}, s.open, { [key]: !s.open[key] }) }));
+  componentDidUpdate() {
+    const s = this.state;
+    const v = this.view();
+    const title = location.hash ? v.name + " (" + v.abbr + ") — POCUS Tips" : this.baseTitle;
+    if (title && document.title !== title) document.title = title;
+
+    if (s.searchOpen !== !!this.wasOpen) {
+      this.wasOpen = s.searchOpen;
+      document.documentElement.style.overflow = s.searchOpen ? "hidden" : "";
+      if (s.searchOpen) this.refocusSearch = true;
+      else if (this.returnFocus) { try { this.returnFocus.focus({ preventScroll: true }); } catch (e) {} }
+      if (!s.searchOpen) this.returnFocus = null;
+    }
+    if (s.searchOpen) {
+      if (this.refocusSearch) { this.refocusSearch = false; const inp = document.getElementById("search-input"); if (inp) { inp.focus(); inp.select(); } }
+      const a = document.getElementById("sr-" + s.sel);
+      if (a) a.scrollIntoView({ block: "nearest" });
+    }
+    if (this.focusTab) { this.focusTab = false; const t = document.getElementById("tab-" + s.active); if (t) t.focus(); }
+    if (this.focusMode) { const m = document.getElementById(this.focusMode); this.focusMode = null; if (m) m.focus(); }
+    if (this.revealTab) { this.revealTab = false; this.scrollTabIntoView(); }
+    if (this.pending) { const target = this.pending; this.pending = null; this.flashTarget(target); }
+  }
+
+  view() { return DATA.find(v => v.id === this.state.active) || DATA[0]; }
+
+  offset(delta) {
+    const i = ORDER.findIndex(v => v.id === this.state.active);
+    return ORDER[(i + delta + ORDER.length) % ORDER.length];
+  }
+
+  select(id, opts) {
+    opts = opts || {};
+    const same = id === this.state.active;
+    if (opts.focusTab) this.focusTab = true;
+    this.revealTab = true;
+    if (!same) {
+      if (!opts.fromHistory) { try { history.pushState({ id }, "", "#" + id); } catch (e) {} }
+      this.setState({ active: id, hover: -1, revealed: {} });
+    } else {
+      this.forceUpdate();
+    }
+    if (!opts.keepScroll) window.scrollTo({ top: 0, behavior: SCROLL });
+  }
+
+  step(delta, opts) { this.select(this.offset(delta).id, opts); }
+
+  // Mobile: the tab strip scrolls sideways, so keep the active tab visible after Next/Prev or a search jump.
+  scrollTabIntoView() {
+    const tab = document.getElementById("tab-" + this.state.active);
+    const nav = tab && tab.closest("nav");
+    if (!nav || nav.scrollWidth <= nav.clientWidth) return;
+    const left = tab.offsetLeft, right = left + tab.offsetWidth;
+    if (left < nav.scrollLeft || right > nav.scrollLeft + nav.clientWidth) {
+      nav.scrollTo({ left: Math.max(0, left - 24), behavior: SCROLL });
+    }
+  }
+
+  flashTarget(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: SCROLL });
+    el.classList.remove("flash");
+    void el.offsetWidth;
+    el.classList.add("flash");
+    setTimeout(() => el.classList.remove("flash"), 1900);
+    let f = el.matches("button,[tabindex]") ? el : el.querySelector("button,[tabindex]");
+    if (!f) { el.setAttribute("tabindex", "-1"); f = el; }
+    f.focus({ preventScroll: true });
+  }
+
+  hasStructures() { return !!(this.view().structures || []).length; }
+
+  setMode(labels) {
+    if (labels === this.state.labels) return;
+    this.setState({ labels, revealed: {}, hover: -1 });
+  }
+
+  onModeKey(e) {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+    e.preventDefault();
+    const labels = !this.state.labels;
+    this.focusMode = labels ? "mode-show" : "mode-quiz";
+    this.setMode(labels);
+  }
+
+  onTabKey(e) {
+    const dir = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    let target;
+    if (dir) target = this.offset(dir);
+    else if (e.key === "Home") target = ORDER[0];
+    else if (e.key === "End") target = ORDER[ORDER.length - 1];
+    else return;
+    e.preventDefault();
+    this.select(target.id, { focusTab: true });
+  }
+
+  globalKey(e) {
+    if (e.defaultPrevented) return;
+    const k = e.key;
+    if ((k === "k" || k === "K") && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      if (this.state.searchOpen) this.closeSearch(); else this.openSearch();
+      return;
+    }
+    if (this.state.searchOpen || e.metaKey || e.ctrlKey || e.altKey) return;
+    const t = e.target, tag = t && t.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable)) return;
+    if (k === "/") { e.preventDefault(); this.openSearch(); }
+    else if (k === "ArrowRight" || k === "ArrowLeft") { e.preventDefault(); this.step(k === "ArrowRight" ? 1 : -1); }
+    else if ((k === "q" || k === "Q") && this.hasStructures()) this.setMode(!this.state.labels);
+    else if ((k === "k" || k === "K") && this.view().media) this.setState(s => ({ playing: !s.playing }));
+  }
+
+  reveal(i) {
+    this.setState(s => ({ revealed: Object.assign({}, s.revealed, { [i]: !s.revealed[i] }) }));
+  }
+
+  openSearch() {
+    if (this.state.searchOpen) return;
+    this.returnFocus = document.activeElement;
+    this.setState({ searchOpen: true, sel: 0 });
+  }
+
+  closeSearch() { this.setState({ searchOpen: false }); }
+
+  goResult(entry) {
+    const patch = { searchOpen: false };
+    if (entry.openKey) patch.open = Object.assign({}, this.state.open, { [entry.openKey]: true });
+    this.returnFocus = null;
+    this.setState(patch);
+    this.pending = entry.target;
+    this.select(entry.view.id, { keepScroll: !!entry.target, focusTab: !entry.target });
+  }
+
+  searchKey(e, found) {
+    const k = e.key;
+    if (k === "Escape") { e.preventDefault(); this.closeSearch(); return; }
+    if (k === "Tab") {
+      const f = Array.from(document.querySelectorAll("#search-dialog input, #search-dialog button"));
+      if (!f.length) return;
+      e.preventDefault();
+      const i = f.indexOf(document.activeElement);
+      f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+      return;
+    }
+    if (e.target.id !== "search-input") return;
+    if (k === "ArrowDown" || k === "ArrowUp") {
+      e.preventDefault();
+      if (!found.length) return;
+      const d = k === "ArrowDown" ? 1 : -1;
+      this.setState(s => ({ sel: (s.sel + d + found.length) % found.length }));
+    } else if (k === "Enter") {
+      e.preventDefault();
+      const r = found[Math.min(this.state.sel, found.length - 1)];
+      if (r) this.goResult(r);
+    }
   }
 
   block(view, title, icon, items, kind) {
+    items = items || [];
+    const keys = items.map((_, i) => view.id + ":" + kind + ":" + i);
+    const allOpen = keys.length > 0 && keys.every(k => this.state.open[k]);
     return {
       title, icon,
-      items: (items || []).map((it, i) => {
-        const key = view.id + ":" + kind + ":" + i;
+      allLabel: allOpen ? "Collapse all" : "Expand all",
+      toggleAll: () => this.setState(s => {
+        const open = Object.assign({}, s.open);
+        keys.forEach(k => { open[k] = !allOpen; });
+        return { open };
+      }),
+      items: items.map((it, i) => {
+        const key = keys[i];
         const open = !!this.state.open[key];
+        const domId = view.id + "-" + kind + "-" + i;
         return {
-          t: it.t, d: it.d, open,
+          t: it.t, d: it.d, open, closed: !open, domId, panelId: domId + "-panel",
           chevron: open ? "ph-bold ph-caret-up" : "ph-bold ph-caret-down",
           markStyle: "flex:none;width:5px;height:5px;border-radius:50%;margin-top:7px;background:" +
             (kind === "pitfalls" ? "var(--color-accent-400)" : "var(--color-neutral-500)"),
-          toggle: () => this.toggle(key)
+          toggle: () => this.setState(s => ({ open: Object.assign({}, s.open, { [key]: !s.open[key] }) }))
         };
       })
     };
   }
 
-  renderVals() {
-    const view = DATA.find(v => v.id === this.state.active) || DATA[0];
-    const labels = this.state.labels;
-    const showProbe = this.props.showProbeDiagram !== false && view.hasProbe !== false;
-    const groupOrder = ["Essentials", "Cardiac", "Lung", "Volume"];
-    const groupLabel = { Essentials: "Setup", Cardiac: "Cardiac", Lung: "Lung", Volume: "IVC" };
+  searchVals() {
+    const s = this.state;
+    const terms = s.searchOpen ? searchTerms(s.q) : [];
+    const found = runSearch(terms);
+    const sel = Math.min(s.sel, Math.max(0, found.length - 1));
+    const results = found.map((e, i) => Object.assign(describe(e, terms), {
+      id: "sr-" + i, active: i === sel, abbr: e.view.abbr, kind: e.kind, viewName: e.view.name,
+      go: () => this.goResult(e),
+      hover: () => { if (this.state.sel !== i) this.setState({ sel: i }); },
+      style: "display:flex;gap:12px;align-items:flex-start;padding:9px 10px;border-radius:8px;cursor:pointer;" +
+        (i === sel ? "background:color-mix(in srgb, var(--color-accent) 16%, transparent)" : "")
+    }));
+    return {
+      open: s.searchOpen, q: s.q, results,
+      hasResults: results.length > 0,
+      activeId: results.length ? "sr-" + sel : undefined,
+      none: terms.length > 0 && !results.length,
+      empty: !terms.length,
+      suggestions: SUGGESTIONS.map(label => ({ label, pick: () => { this.refocusSearch = true; this.setState({ q: label, sel: 0 }); } })),
+      onQuery: e => this.setState({ q: e.target.value, sel: 0 }),
+      key: e => this.searchKey(e, found),
+      close: () => this.closeSearch(),
+      backdrop: e => { if (e.target === e.currentTarget) this.closeSearch(); }
+    };
+  }
 
-    const groups = groupOrder.map(g => ({
-      label: groupLabel[g],
+  renderVals() {
+    const view = this.view();
+    const labels = this.state.labels;
+    const revealed = this.state.revealed;
+    const showProbe = this.props.showProbeDiagram !== false && view.hasProbe !== false;
+    const playback = { playing: this.state.playing, slow: this.state.slow };
+
+    const groups = GROUP_ORDER.map(g => ({
+      label: GROUP_LABEL[g],
       items: DATA.filter(v => v.group === g).map(v => {
         const on = v.id === view.id;
         return {
-          name: v.name, abbr: v.abbr, on, select: () => this.select(v.id),
+          name: v.name, abbr: v.abbr, on, tabId: "tab-" + v.id, tabIndex: on ? 0 : -1,
+          select: () => this.select(v.id),
           style: "display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;" +
             "font:inherit;font-size:13.5px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .12s ease;" +
             (on
@@ -921,94 +1359,142 @@ class Component extends DCLogic {
     }));
 
     const modes = [
-      { label: "Show", on: labels, set: true },
-      { label: "Quiz", on: !labels, set: false }
+      { id: "mode-show", label: "Show", on: labels, set: true },
+      { id: "mode-quiz", label: "Quiz", on: !labels, set: false }
     ].map(m => ({
-      label: m.label,
-      on: m.on,
-      select: () => this.setState({ labels: m.set }),
+      id: m.id, label: m.label, on: m.on, tabIndex: m.on ? 0 : -1,
+      select: () => this.setMode(m.set),
       style: "font:inherit;font-size:12px;padding:5px 12px;cursor:pointer;background:transparent;border:0;" +
         (m.on
           ? "color:var(--color-accent);box-shadow:inset 0 0 0 1px var(--color-accent);border-radius:7px"
           : "color:color-mix(in srgb, var(--color-text) 62%, transparent)")
     }));
 
-    const structures = (view.structures || []).map((s, i) => {
+    const structs = view.structures || [];
+    const structures = structs.map((s, i) => {
       const hot = this.state.hover === i;
       const noPin = !(s.x > 0 || s.y > 0);
+      const shown = labels || !!revealed[i];
+      const activate = () => {
+        if (!labels) this.reveal(i);
+        this.setState({ hover: noPin ? -1 : i });
+      };
       return {
-        n: i + 1, name: labels ? s.name : "Structure " + (i + 1),
-        note: labels ? s.note : "Name it, then switch back to Show.",
+        n: i + 1, domId: view.id + "-structure-" + i,
+        name: shown ? s.name : "Structure " + (i + 1),
+        note: shown ? s.note
+          : noPin ? "Clue: " + s.note + " Tap to reveal."
+          : "Find pin " + (i + 1) + " on the loop, name it, then tap to check.",
+        gotIt: !labels && !!revealed[i],
         noPin,
         tagStyle: "flex:none;font-size:9.5px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-600);border:1px solid var(--color-neutral-800);border-radius:4px;padding:1px 6px;margin-top:1px",
-        enter: () => this.setState({ hover: noPin ? -1 : i }),
-        leave: () => this.setState({ hover: -1 }),
+        enter: () => { if (this.state.hover !== (noPin ? -1 : i)) this.setState({ hover: noPin ? -1 : i }); },
+        leave: () => { if (this.state.hover !== -1) this.setState({ hover: -1 }); },
+        activate,
+        key: e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } },
         rowStyle: NEUTRAL_ROW + ";cursor:pointer;" + (hot ? "background:color-mix(in srgb, var(--color-accent) 12%, transparent)" : ""),
         numStyle: "flex:none;width:19px;height:19px;border-radius:50%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10.5px;display:flex;align-items:center;justify-content:center;margin-top:2px;" +
           (hot ? "background:var(--color-accent);color:#161826" : "background:var(--color-neutral-800);color:var(--color-neutral-300)"),
-        nameStyle: "font-size:13.5px;line-height:1.35;" + (labels ? "" : "color:var(--color-neutral-500);font-style:italic;")
+        nameStyle: "font-size:13.5px;line-height:1.35;" + (shown ? "" : "color:var(--color-neutral-500);font-style:italic;")
       };
     });
 
-    const pins = (view.media ? (view.structures || []).filter(s => s.x > 0 || s.y > 0) : []).map((s, i) => {
-      const idx = (view.structures || []).indexOf(s);
+    const pins = (view.media ? structs.filter(s => s.x > 0 || s.y > 0) : []).map(s => {
+      const idx = structs.indexOf(s);
       const hot = this.state.hover === idx;
+      const named = labels || !!revealed[idx];
       return {
-        n: idx + 1, label: s.name,
+        n: idx + 1, label: named ? s.name : "",
         wrapStyle: "position:absolute;left:" + s.x + "%;top:" + s.y + "%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:5px;pointer-events:none;animation:pinIn .18s ease both;z-index:" + (hot ? 3 : 2),
         dotStyle: "flex:none;width:17px;height:17px;border-radius:50%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;display:flex;align-items:center;justify-content:center;" +
           (hot
             ? "background:var(--color-accent);color:#161826;box-shadow:0 0 0 3px rgba(145,132,217,.35), 0 0 14px rgba(145,132,217,.8)"
             : "background:rgba(22,24,38,.72);color:#d2cefd;box-shadow:0 0 0 1px rgba(210,206,253,.55)"),
-        labelStyle: hot
+        labelStyle: hot && named
           ? "font-size:11px;letter-spacing:.01em;white-space:nowrap;padding:2px 7px;border-radius:5px;background:rgba(22,24,38,.86);color:#e7e5fe;box-shadow:0 0 0 1px rgba(145,132,217,.5)"
           : "display:none"
       };
     });
 
-    const i = DATA.indexOf(view);
-    const nxt = DATA[(i + 1) % DATA.length];
+    const revealedCount = structs.filter((_, i) => revealed[i]).length;
+    const prev = this.offset(-1), next = this.offset(1);
 
     return {
       byline: this.props.byline || "Yonathan Daniel, MD",
       groups, modes, structures, pins,
+      tabpanelLabel: "tab-" + view.id,
+      offlineReady: this.state.offlineReady,
       view: {
         name: view.name, abbr: view.abbr, purpose: view.purpose,
         media: view.media, mediaRatio: view.mediaRatio || "4 / 3", burnedIn: !!(view.burnedIn || view.credit),
         credit: view.credit || "Loop: Pocus 101", mediaNote: view.mediaNote || (labels
           ? "Select (tap, click, or Tab to) a structure below to pin it on the loop."
-          : "Quiz mode: names hidden. Select a numbered row below to find it on the loop."),
+          : "Quiz: name each numbered pin, then tap its row below to check your answer."),
         site: view.site, marker: view.marker, settings: view.settings || [],
         probeTransform: view.probeTransform || "translate(52 60) rotate(0)",
         stepsTitle: view.stepsTitle || "Get the view",
         tableTitle: view.tableTitle, colA: view.colA, colB: view.colB, colC: view.colC
+      },
+      video: {
+        slow: this.state.slow,
+        playLabel: this.state.playing ? "Pause loop" : "Play loop",
+        playIcon: this.state.playing ? "ph-bold ph-pause" : "ph-bold ph-play",
+        togglePlay: () => this.setState(s => ({ playing: !s.playing })),
+        toggleSlow: () => this.setState(s => ({ slow: !s.slow }))
+      },
+      quiz: {
+        on: !labels && structs.length > 0, off: labels,
+        progress: revealedCount === structs.length ? "All " + structs.length + " revealed" : revealedCount + " / " + structs.length + " revealed",
+        revealAll: () => this.setState({ revealed: Object.fromEntries(structs.map((_, i) => [i, true])) }),
+        reset: () => this.setState({ revealed: {}, hover: -1 })
       },
       hasMedia: !!view.media,
       hasHero: !!view.media,
       hasCompare: !!view.compare,
       compare: view.compare ? {
         title: view.compare.title, note: view.compare.note, ratio: view.compare.ratio, credit: view.compare.credit,
-        cols: view.compare.cols, hasImg: !!view.compare.media,
-        img: view.compare.media ? loopVideo(view.compare.media, "M-mode seashore versus barcode") : null
+        cols: view.compare.cols.map((c, i) => Object.assign({ domId: view.id + "-compare-" + i }, c)),
+        hasImg: !!view.compare.media,
+        img: view.compare.media ? loopVideo(view.compare.media, "M-mode seashore versus barcode", playback) : null
       } : null,
-      loopImg: view.media ? loopVideo(view.media, view.name + " loop" + (labels ? "" : " (names hidden for quiz mode)")) : null,
+      loopImg: view.media ? loopVideo(view.media, view.name + " loop", playback) : null,
       hasProbe: showProbe,
       hasSteps: !!(view.steps && view.steps.length),
-      hasStructures: !!(view.structures && view.structures.length),
+      hasStructures: structs.length > 0,
       hasTable: !!(view.rows && view.rows.length),
-      structureHint: pins.length ? (labels ? "select to pin" : "names hidden") : "no pins on this loop yet",
-      steps: (view.steps || []).map((t, n) => ({ n: n + 1, text: t })),
-      rows: view.rows || [],
+      structureHint: pins.length ? "select to pin" : "listed by name — not pinned on this loop",
+      steps: (view.steps || []).map((t, n) => ({ n: n + 1, text: t, domId: view.id + "-step-" + n })),
+      rows: (view.rows || []).map((r, i) => Object.assign({ domId: view.id + "-row-" + i }, r)),
       blocks: [
         this.block(view, "Don’t be fooled", "ph-bold ph-warning-diamond", view.pitfalls, "pitfalls"),
         this.block(view, "Bad image? Fix it", "ph-bold ph-sliders-horizontal", view.fixes, "fixes")
       ],
-      actions: view.actions || [],
-      next: () => this.select(nxt.id)
+      actions: (view.actions || []).map((a, i) => Object.assign({ domId: view.id + "-action-" + i }, a)),
+      pager: { prev: () => this.step(-1), next: () => this.step(1), prevName: prev.name, nextName: next.name },
+      printView: () => window.print(),
+      openSearch: () => this.openSearch(),
+      onTabKey: e => this.onTabKey(e),
+      onModeKey: e => this.onModeKey(e),
+      search: this.searchVals()
     };
   }
 }
 
+</script>
+<script>
+  if ("serviceWorker" in navigator && location.protocol !== "file:") {
+    addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").then(() => navigator.serviceWorker.ready).then(reg => {
+        const conn = navigator.connection;
+        if (!reg.active || (conn && conn.saveData)) return;
+        // Match the <source> the browser will actually pick so offline playback has the right file.
+        const ext = document.createElement("video").canPlayType("video/webm") ? "webm" : "mp4";
+        const loops = ["plax", "psax", "a4c", "subc", "ivc", "lung-normal", "lung-blines", "lung-ptx", "lung-consolidation", "mmode-compare"];
+        const send = () => reg.active.postMessage({ type: "warm", urls: loops.map(n => "assets/loops/" + n + "." + ext) });
+        if ("requestIdleCallback" in window) requestIdleCallback(send, { timeout: 4000 }); else setTimeout(send, 2000);
+      }).catch(() => {});
+    });
+  }
 </script>
 </body>
 </html>
